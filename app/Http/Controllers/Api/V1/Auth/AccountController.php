@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\VerifyUserRequest;
-use App\Http\Requests\CodeRequest;
-use App\Http\Requests\UserResetPassRequest;
+use App\Http\Requests\Auth\VerifyUserRequest;
+use App\Http\Requests\Auth\CodeRequest;
+use App\Http\Requests\Auth\UserResetPassRequest;
 use App\Services\AccountService;
 use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Http\Requests\Auth\LoginRequest;
 
 class AccountController extends Controller
 {
@@ -19,6 +20,11 @@ class AccountController extends Controller
         private AccountService $accountService
     ) {}
 
+    public function login(LoginRequest $request): JsonResponse
+    {
+        return $this->accountService->login($request);
+    }
+    
     public function verifyUser(VerifyUserRequest $request): JsonResponse
     {
         return $this->accountService->verifyUserIdentity($request);

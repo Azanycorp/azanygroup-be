@@ -1,22 +1,39 @@
 <?php
 namespace App\Services;
 use App\Enum\MailingEnum;
-use App\Http\Requests\VerifyUserRequest;
+use App\Http\Requests\Auth\VerifyUserRequest;
 use App\Mail\PasswordResetCodeMail;
 use App\Models\User;
 use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\Auth\UserResetPassRequest;
+use App\Http\Requests\Auth\CodeRequest;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Http\Request;
+use App\Http\Resources\UserResource;
+use App\Http\Requests\Auth\LoginRequest;
 
 class AccountService
 {
     use HttpResponses;
+    public function login(LoginRequest $request): JsonResponse
+    {
+        $user = $request->authenticate();
+
+        $token = $user->createToken($request->input('email'))->plainTextToken;
+
+        return $this->successResponse([
+            'token' => $token,
+            'user' => new UserResource($user),
+        ], 'Login successful.');
+    }
 
     public function resendCode($request): JsonResponse
     {
         $email = Auth::check() ? Auth::user()->email : $request->email;
 
-        $user = User::whereBlindIndex('email', $email)->first();
+        $user = User::where('email', $email)->first();
 
         if (! $user) {
             return $this->errorResponse(null, 'Oops! No record found with your entry.', 404);
@@ -35,7 +52,7 @@ class AccountService
 
     public function verifyUserIdentity(VerifyUserRequest $request): JsonResponse
     {
-        $user = User::whereBlindIndex('email',$request->email)->first();
+        $user = User::where('email',$request->email)->first();
 
         if (! $user) {
             return $this->errorResponse(null,'Oops! No record found with your entry.', 404);
@@ -52,7 +69,7 @@ class AccountService
         return $this->successResponse(null, 'A verification code has been sent to your email');
     }
 
-    public function verifyCode($request): JsonResponse
+    public function verifyCode(CodeRequest $request): JsonResponse
     {
         $user = User::where('verification_code', $request->verification_code)->first();
         if (! $user) {
@@ -70,9 +87,9 @@ class AccountService
         return $this->successResponse(null, 'Code Verified');
     }
 
-    public function changePassword($request): JsonResponse
+    public function changePassword(UserResetPassRequest $request): JsonResponse
     {
-        $user = User::whereBlindIndex('email', $request->email)->firstOrFail();
+        $user = User::where('email', $request->email)->firstOrFail();
 
         $user->update([
             'password' => bcrypt($request->password),
