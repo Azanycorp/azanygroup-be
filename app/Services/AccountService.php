@@ -1,234 +1,84 @@
 <?php
-
 namespace App\Services;
-
-use App\Enums\OtpType;
-use App\Http\Resources\UserResource;
+use App\Enum\MailingEnum;
+use App\Http\Requests\VerifyUserRequest;
+use App\Mail\PasswordResetCodeMail;
 use App\Models\User;
-use App\Notifications\ResetPasswordOtpNotification;
-use App\Notifications\VerifyEmailOtpNotification;
-use Illuminate\Auth\Events\PasswordReset;
-use Illuminate\Auth\Events\Verified;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use App\Traits\HttpResponses;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class AccountService
 {
-    /**
-     * Create a new service instance.
-     */
-    public function __construct(
-        public OtpService $otpService,
-    ) {}
+    use HttpResponses;
 
-    /**
-     * Send or resend an email verification OTP code.
-     *
-     * @return array{success: bool, message: string, status: int, data?: array<string, mixed>, errors?: array<string, string>}
-     */
-    public function sendVerificationCode(string $email): array
+    public function resendCode($request): JsonResponse
     {
-        $normalizedEmail = strtolower(trim($email));
-        $user = User::where('email', $normalizedEmail)->first();
+        $email = Auth::check() ? Auth::user()->email : $request->email;
 
-        if ($user === null) {
-            return [
-                'success' => false,
-                'message' => 'User not found.',
-                'status' => Response::HTTP_NOT_FOUND,
-                'errors' => ['email' => 'User not found.'],
-            ];
+        $user = User::whereBlindIndex('email', $email)->first();
+
+        if (! $user) {
+            return $this->errorResponse(null, 'Oops! No record found with your entry.', 404);
         }
 
-        if ($user->hasVerifiedEmail()) {
-            return [
-                'success' => false,
-                'message' => 'Email is already verified.',
-                'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
-                'errors' => ['email' => 'Email is already verified.'],
-            ];
-        }
+        $verificationCode = generate_user_verification_code();
+        $user->update([
+            'verification_code' => $verificationCode,
+            'verification_code_expire_at' => now()->addMinutes(10),
+        ]);
 
-        if ($this->otpService->isThrottled($normalizedEmail, OtpType::EmailVerification)) {
-            return [
-                'success' => false,
-                'message' => 'Please wait before requesting another verification code.',
-                'status' => Response::HTTP_TOO_MANY_REQUESTS,
-                'errors' => ['throttle' => 'Please wait before requesting another verification code.'],
-            ];
-        }
+        Mail::to($user->email)->send(new PasswordResetCodeMail($user));
 
-        $code = $this->otpService->generate($normalizedEmail, OtpType::EmailVerification, 10);
-        $user->notify(new VerifyEmailOtpNotification($code, 10));
-
-        return [
-            'success' => true,
-            'message' => 'Verification code has been sent to your email.',
-            'status' => Response::HTTP_OK,
-            'data' => [
-                'expires_in_minutes' => 10,
-            ],
-        ];
+        return $this->successResponse(null, 'A new code has been sent to you');
     }
 
-    /**
-     * Verify the user's email address using the provided OTP code.
-     *
-     * @return array{success: bool, message: string, status: int, data?: array<string, mixed>, errors?: array<string, string>}
-     */
-    public function verifyEmail(string $email, string $code): array
+    public function verifyUserIdentity(VerifyUserRequest $request): JsonResponse
     {
-        $normalizedEmail = strtolower(trim($email));
-        $user = User::where('email', $normalizedEmail)->first();
+        $user = User::whereBlindIndex('email',$request->email)->first();
 
-        if ($user === null) {
-            return [
-                'success' => false,
-                'message' => 'User not found.',
-                'status' => Response::HTTP_NOT_FOUND,
-                'errors' => ['email' => 'User not found.'],
-            ];
+        if (! $user) {
+            return $this->errorResponse(null,'Oops! No record found with your entry.', 404);
         }
 
-        if ($user->hasVerifiedEmail()) {
-            return [
-                'success' => true,
-                'message' => 'Email is already verified.',
-                'status' => Response::HTTP_OK,
-                'data' => [
-                    'user' => new UserResource($user),
-                ],
-            ];
-        }
+        $verificationCode = generate_user_verification_code();
+        $user->update([
+            'verification_code' => $verificationCode,
+            'verification_code_expire_at' => now()->addMinutes(10),
+        ]);
 
-        $isValid = $this->otpService->verify(
-            $normalizedEmail,
-            OtpType::EmailVerification,
-            $code,
-        );
+       Mail::to($user->email)->send(new PasswordResetCodeMail($user));
 
-        if (! $isValid) {
-            return [
-                'success' => false,
-                'message' => 'The verification code is invalid or has expired.',
-                'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
-                'errors' => ['code' => 'The verification code is invalid or has expired.'],
-            ];
-        }
-
-        $user->markEmailAsVerified();
-        event(new Verified($user));
-
-        return [
-            'success' => true,
-            'message' => 'Email verified successfully.',
-            'status' => Response::HTTP_OK,
-            'data' => [
-                'user' => new UserResource($user->fresh()),
-            ],
-        ];
+        return $this->successResponse(null, 'A verification code has been sent to your email');
     }
 
-    /**
-     * Send a 6-digit password reset OTP to the user's email.
-     *
-     * @return array{success: bool, message: string, status: int, data?: array<string, mixed>, errors?: array<string, string>}
-     */
-    public function sendPasswordResetCode(string $email): array
+    public function verifyCode($request): JsonResponse
     {
-        $normalizedEmail = strtolower(trim($email));
-        $user = User::where('email', $normalizedEmail)->first();
-
-        if ($user !== null && ! $this->otpService->isThrottled($normalizedEmail, OtpType::PasswordReset)) {
-            $code = $this->otpService->generate($normalizedEmail, OtpType::PasswordReset, 15);
-            $user->notify(new ResetPasswordOtpNotification($code, 15));
+        $user = User::where('verification_code', $request->verification_code)->first();
+        if (! $user) {
+            return $this->errorResponse(null, 'Invalid code entered, please try it again.', 422);
         }
 
-        return [
-            'success' => true,
-            'message' => 'If your email is registered in our system, you will receive a password reset code.',
-            'status' => Response::HTTP_OK,
-            'data' => [
-                'expires_in_minutes' => 15,
-            ],
-        ];
+        if ($user->verification_code_expire_at < now()) {
+            return $this->errorResponse(null, 'Verification Code has Expired!', 403);
+        }
+        $user->update([
+            'verification_code' => null,
+            'verification_code_expire_at' => null,
+        ]);
+
+        return $this->successResponse(null, 'Code Verified');
     }
 
-    /**
-     * Verify whether a password reset OTP code is valid before prompting the new password.
-     *
-     * @return array{success: bool, message: string, status: int, data?: array<string, mixed>, errors?: array<string, string>}
-     */
-    public function verifyPasswordResetCode(string $email, string $code): array
+    public function changePassword($request): JsonResponse
     {
-        $normalizedEmail = strtolower(trim($email));
+        $user = User::whereBlindIndex('email', $request->email)->firstOrFail();
 
-        $isValid = $this->otpService->check($normalizedEmail, OtpType::PasswordReset, $code);
+        $user->update([
+            'password' => bcrypt($request->password),
+        ]);
 
-        if (! $isValid) {
-            return [
-                'success' => false,
-                'message' => 'The password reset code is invalid or has expired.',
-                'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
-                'errors' => ['code' => 'The password reset code is invalid or has expired.'],
-                'data' => ['valid' => false],
-            ];
-        }
-
-        return [
-            'success' => true,
-            'message' => 'The password reset code is valid.',
-            'status' => Response::HTTP_OK,
-            'data' => ['valid' => true],
-        ];
+        return $this->successResponse(null, 'Password Reset successfully!');
     }
 
-    /**
-     * Reset the user's password using the verified OTP code.
-     *
-     * @return array{success: bool, message: string, status: int, data?: array<string, mixed>, errors?: array<string, string>}
-     */
-    public function resetPassword(string $email, string $code, string $newPassword): array
-    {
-        $normalizedEmail = strtolower(trim($email));
-
-        $isValid = $this->otpService->verify($normalizedEmail, OtpType::PasswordReset, $code);
-
-        if (! $isValid) {
-            return [
-                'success' => false,
-                'message' => 'The password reset code is invalid or has expired.',
-                'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
-                'errors' => ['code' => 'The password reset code is invalid or has expired.'],
-            ];
-        }
-
-        $user = User::where('email', $normalizedEmail)->first();
-
-        if ($user === null) {
-            return [
-                'success' => false,
-                'message' => 'User not found.',
-                'status' => Response::HTTP_NOT_FOUND,
-                'errors' => ['email' => 'User not found.'],
-            ];
-        }
-
-        $user->forceFill([
-            'password' => Hash::make($newPassword),
-            'remember_token' => Str::random(60),
-        ])->save();
-
-        $user->tokens()->delete();
-
-        event(new PasswordReset($user));
-
-        return [
-            'success' => true,
-            'message' => 'Password has been reset successfully.',
-            'status' => Response::HTTP_OK,
-            'data' => null,
-        ];
-    }
 }
