@@ -22,8 +22,11 @@ test('user can request email verification code', function () {
 
     $response->assertOk()
         ->assertJson([
+            'success' => true,
             'message' => 'Verification code has been sent to your email.',
-            'expires_in_minutes' => 10,
+            'data' => [
+                'expires_in_minutes' => 10,
+            ],
         ]);
 
     Notification::assertSentTo($user, VerifyEmailOtpNotification::class, function ($notification) {
@@ -41,6 +44,7 @@ test('authenticated user can request verification code without providing email',
 
     $response->assertOk()
         ->assertJson([
+            'success' => true,
             'message' => 'Verification code has been sent to your email.',
         ]);
 
@@ -61,6 +65,7 @@ test('user cannot request verification code if already verified', function () {
 
     $response->assertStatus(422)
         ->assertJson([
+            'success' => false,
             'message' => 'Email is already verified.',
         ]);
 
@@ -84,6 +89,7 @@ test('user cannot request verification code repeatedly within cooldown period', 
 
     $secondResponse->assertStatus(429)
         ->assertJson([
+            'success' => false,
             'message' => 'Please wait before requesting another verification code.',
         ]);
 });
@@ -103,11 +109,14 @@ test('user can verify email with valid otp code', function () {
 
     $response->assertOk()
         ->assertJson([
+            'success' => true,
             'message' => 'Email verified successfully.',
-            'user' => [
-                'id' => $user->id,
-                'email' => 'confirm@example.com',
-                'is_email_verified' => true,
+            'data' => [
+                'user' => [
+                    'id' => $user->id,
+                    'email' => 'confirm@example.com',
+                    'is_email_verified' => true,
+                ],
             ],
         ]);
 
@@ -131,6 +140,7 @@ test('user cannot verify email with invalid otp code', function () {
 
     $response->assertStatus(422)
         ->assertJson([
+            'success' => false,
             'message' => 'The verification code is invalid or has expired.',
         ]);
 });
@@ -156,5 +166,8 @@ test('invalid attempts exceeding maximum invalidates the code', function () {
         'code' => $validCode,
     ]);
 
-    $response->assertStatus(422);
+    $response->assertStatus(422)
+        ->assertJson([
+            'success' => false,
+        ]);
 });

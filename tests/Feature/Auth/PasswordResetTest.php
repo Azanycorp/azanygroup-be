@@ -19,8 +19,11 @@ test('forgot password returns success message for non-registered email', functio
 
     $response->assertOk()
         ->assertJson([
+            'success' => true,
             'message' => 'If your email is registered in our system, you will receive a password reset code.',
-            'expires_in_minutes' => 15,
+            'data' => [
+                'expires_in_minutes' => 15,
+            ],
         ]);
 
     Notification::assertNothingSent();
@@ -39,6 +42,7 @@ test('forgot password sends otp notification to registered user', function () {
 
     $response->assertOk()
         ->assertJson([
+            'success' => true,
             'message' => 'If your email is registered in our system, you will receive a password reset code.',
         ]);
 
@@ -62,8 +66,11 @@ test('verify-code endpoint confirms valid code without consuming it', function (
 
     $response->assertOk()
         ->assertJson([
-            'valid' => true,
+            'success' => true,
             'message' => 'The password reset code is valid.',
+            'data' => [
+                'valid' => true,
+            ],
         ]);
 
     // Ensure the code still exists and can be verified again
@@ -85,7 +92,7 @@ test('verify-code endpoint rejects invalid code', function () {
 
     $response->assertStatus(422)
         ->assertJson([
-            'valid' => false,
+            'success' => false,
             'message' => 'The password reset code is invalid or has expired.',
         ]);
 });
@@ -112,6 +119,7 @@ test('user can reset password with valid otp code and new password', function ()
 
     $response->assertOk()
         ->assertJson([
+            'success' => true,
             'message' => 'Password has been reset successfully.',
         ]);
 
@@ -128,7 +136,10 @@ test('user can reset password with valid otp code and new password', function ()
     ]);
 
     $loginResponse->assertOk()
-        ->assertJsonStructure(['access_token']);
+        ->assertJson([
+            'success' => true,
+        ]);
+    expect($loginResponse->json('data.access_token'))->toBeString()->not->toBeEmpty();
 });
 
 test('user cannot reset password with mismatched password confirmation', function () {
@@ -164,6 +175,7 @@ test('user cannot reset password with invalid code', function () {
 
     $response->assertStatus(422)
         ->assertJson([
+            'success' => false,
             'message' => 'The password reset code is invalid or has expired.',
         ]);
 });

@@ -20,30 +20,36 @@ test('user can log in with valid credentials', function () {
 
     $response->assertOk()
         ->assertJsonStructure([
+            'success',
             'message',
-            'access_token',
-            'token_type',
-            'user' => [
-                'id',
-                'name',
-                'email',
-                'is_email_verified',
-                'email_verified_at',
-                'created_at',
-                'updated_at',
+            'data' => [
+                'access_token',
+                'token_type',
+                'user' => [
+                    'id',
+                    'name',
+                    'email',
+                    'is_email_verified',
+                    'email_verified_at',
+                    'created_at',
+                    'updated_at',
+                ],
             ],
         ])
         ->assertJson([
+            'success' => true,
             'message' => 'Login successful.',
-            'token_type' => 'Bearer',
-            'user' => [
-                'id' => $user->id,
-                'email' => 'jane@example.com',
-                'is_email_verified' => true,
+            'data' => [
+                'token_type' => 'Bearer',
+                'user' => [
+                    'id' => $user->id,
+                    'email' => 'jane@example.com',
+                    'is_email_verified' => true,
+                ],
             ],
         ]);
 
-    expect($response->json('access_token'))->toBeString()->not->toBeEmpty();
+    expect($response->json('data.access_token'))->toBeString()->not->toBeEmpty();
 });
 
 test('user cannot log in with invalid password', function () {
@@ -86,9 +92,12 @@ test('authenticated user can view their profile via me endpoint', function () {
 
     $response->assertOk()
         ->assertJson([
-            'user' => [
-                'id' => $user->id,
-                'email' => $user->email,
+            'success' => true,
+            'data' => [
+                'user' => [
+                    'id' => $user->id,
+                    'email' => $user->email,
+                ],
             ],
         ]);
 });
@@ -108,6 +117,7 @@ test('authenticated user can log out and revoke their token', function () {
 
     $response->assertOk()
         ->assertJson([
+            'success' => true,
             'message' => 'Logged out successfully.',
         ]);
 
