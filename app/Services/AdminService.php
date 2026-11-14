@@ -15,7 +15,7 @@ class AdminService
     use HttpResponses;
     public function dashboard(): JsonResponse
     {
-        return $this->successResponse(new UserResource($user), 'Dashboard data retrieved successfully.');
+        return $this->successResponse(null, 'Dashboard data retrieved successfully.');
     }
 
 }
