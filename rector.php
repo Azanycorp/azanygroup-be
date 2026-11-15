@@ -1,7 +1,6 @@
 <?php
 
 use Rector\Config\RectorConfig;
-use Rector\TypeDeclaration\Rector\StmtsAwareInterface\SafeDeclareStrictTypesRector;
 use Rector\ValueObject\PhpVersion;
 use RectorLaravel\Rector\Class_\AddHasFactoryToModelsRector;
 use RectorLaravel\Rector\FuncCall\RemoveDumpDataDeadCodeRector;
@@ -31,6 +30,5 @@ return RectorConfig::configure()
     ->withImportNames(removeUnusedImports: true)
     ->withSkip([
         AddHasFactoryToModelsRector::class,
-        SafeDeclareStrictTypesRector::class,
     ])
     ->withPhpVersion(PhpVersion::PHP_84);
