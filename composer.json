@@ -14,7 +14,9 @@
         "laravel/tinker": "^3.0"
     },
     "require-dev": {
+        "driftingly/rector-laravel": "^2.7",
         "fakerphp/faker": "^1.23",
+        "larastan/larastan": "^3.0",
         "laravel/boost": "^2.2",
         "laravel/pail": "^1.2.5",
         "laravel/pao": "^1.0.6",
@@ -37,6 +39,8 @@
         }
     },
     "scripts": {
+        "phpstan": "vendor/bin/phpstan analyse --memory-limit=2G",
+        "rector-dry": "vendor/bin/rector process --dry-run",
         "setup": [
             "composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
@@ -50,8 +54,9 @@
             "@php artisan dev"
         ],
         "test": [
+            "@analyse",
             "@php artisan config:clear --ansi @no_additional_args",
-            "@php artisan test"
+            "@php artisan test --parallel"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
@@ -71,6 +76,10 @@
         ],
         "pre-package-uninstall": [
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
+        ],
+        "analyse": [
+            "@rector-dry",
+            "@phpstan"
         ]
     },
     "extra": {
