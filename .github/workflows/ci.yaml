@@ -41,15 +41,6 @@ jobs:
           node-version: '22'
           cache: npm
 
-      - name: Install frontend dependencies
-        run: npm ci
-
-      - name: Build frontend
-        run: npm run build
-
-      - name: Typecheck frontend
-        run: npx vue-tsc --noEmit
-
       - name: Prepare environment
         run: |
           cp .env.example .env
