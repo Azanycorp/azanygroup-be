@@ -57,4 +57,5 @@ class HomeService
         ]);
         return $this->successResponse(null, 'Open application submitted successfully.');
     }
+    
 }

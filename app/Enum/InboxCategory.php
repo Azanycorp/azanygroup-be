@@ -8,5 +8,4 @@ enum InboxCategory: string
     case APPLICATION = 'application';
     case INQUIRY = 'inquiry';
 
-
 }
