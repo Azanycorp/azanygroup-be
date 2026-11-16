@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\VerifyUserRequest;
-use App\Http\Requests\Auth\CodeRequest;
-use App\Http\Requests\Auth\UserResetPassRequest;
+use App\Http\Requests\VerifyUserRequest;
+use App\Http\Requests\CodeRequest;
+use App\Http\Requests\UserResetPassRequest;
 use App\Services\AccountService;
 use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
+use App\Http\Requests\LoginRequest;
 use Illuminate\Http\Request;
-use App\Http\Requests\Auth\LoginRequest;
 
 class AccountController extends Controller
 {

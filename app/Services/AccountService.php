@@ -1,6 +1,6 @@
 <?php
 namespace App\Services;
-use App\Http\Requests\Auth\VerifyUserRequest;
+use App\Http\Requests\VerifyUserRequest;
 use App\Mail\PasswordResetCodeMail;
 use App\Models\User;
 use App\Traits\HttpResponses;
