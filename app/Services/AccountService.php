@@ -71,11 +71,11 @@ class AccountService
     {
         $user = User::where('verification_code', $request->verification_code)->first();
         if (! $user) {
-            return $this->errorResponse(null, 'Invalid code entered, please try it again.', 422);
+            return $this->errorResponse(null, 'Invalid code entered, please try it again.', 400);
         }
 
         if ($user->verification_code_expire_at < now()) {
-            return $this->errorResponse(null, 'Verification Code has Expired!', 403);
+            return $this->errorResponse(null, 'Verification Code has Expired!', 400);
         }
         $user->update([
             'verification_code' => null,
