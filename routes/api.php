@@ -25,6 +25,7 @@ Route::prefix('auth')->group(function (): void {
 Route::prefix('admin')->middleware('auth:sanctum')->group(function (): void {
     Route::controller(AdminController::class)->group(function () {
         Route::get('dashboard', 'dashboard');
+        Route::get('inbox-messages', 'inboxMessages');
     });
 
     Route::prefix('profile')->controller(ProfileController::class)->group(function () {

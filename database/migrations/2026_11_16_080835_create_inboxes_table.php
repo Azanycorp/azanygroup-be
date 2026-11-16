@@ -13,9 +13,12 @@ return new class extends Migration {
         Schema::create('inboxes', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->unsignedBigInteger('job_id')->nullable();
+            $table->string('job_title')->nullable();
             $table->string('email');
             $table->string('company_name')->nullable();
             $table->string('category');
+            $table->string('status')->default('new');
             $table->string('role')->nullable();
             $table->string('phone')->nullable();
             $table->string('location')->nullable();
