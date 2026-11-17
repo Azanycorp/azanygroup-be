@@ -7,17 +7,14 @@ use App\Http\Requests\VerifyUserRequest;
 use App\Http\Requests\CodeRequest;
 use App\Http\Requests\UserResetPassRequest;
 use App\Services\AccountService;
-use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\LoginRequest;
-use Illuminate\Http\Request;
 
 class AccountController extends Controller
 {
-    use HttpResponses;
-
+    
    public function __construct(
-        private AccountService $accountService
+        private readonly AccountService $accountService
     ) {}
 
     public function login(LoginRequest $request): JsonResponse
@@ -40,7 +37,7 @@ class AccountController extends Controller
         return $this->accountService->changePassword($request);
     }
 
-    public function resendCode(Request $request): JsonResponse
+    public function resendCode(VerifyUserRequest $request): JsonResponse
     {
         return $this->accountService->resendCode($request);
     }

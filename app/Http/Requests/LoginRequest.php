@@ -14,7 +14,9 @@ use Illuminate\Foundation\Http\Attributes\FailOnUnknownFields;
 #[FailOnUnknownFields]
 class LoginRequest extends FormRequest
 {
-   
+   /**
+     * @return array<string, array<int, string>>
+     */
     public function rules(): array
     {
         return [

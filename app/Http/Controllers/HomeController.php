@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Services\HomeService;
 use App\Http\Requests\ContactUsRequest;
 use Illuminate\Http\JsonResponse;
@@ -12,7 +11,7 @@ use App\Http\Requests\OpenApplicationRequest;
 class HomeController extends Controller
 {
      public function __construct(
-        private HomeService $homeService
+        private readonly HomeService $homeService
     ) {
     }
     public function addContactMessage(ContactUsRequest $request): JsonResponse

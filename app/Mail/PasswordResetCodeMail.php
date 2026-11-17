@@ -3,7 +3,6 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
@@ -14,11 +13,10 @@ use App\Models\User;
 class PasswordResetCodeMail extends Mailable
 {
     use Queueable, SerializesModels;
-    public User $user;
     /**
      * Create a new message instance.
      */
-    public function __construct(User $user)
+    public function __construct(public User $user)
     {
         $this->user = $user;
     }

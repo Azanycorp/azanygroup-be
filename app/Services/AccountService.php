@@ -27,11 +27,11 @@ class AccountService
         ], 'Login successful.');
     }
 
-    public function resendCode($request): JsonResponse
+    public function resendCode(VerifyUserRequest $request): JsonResponse
     {
         $email = Auth::check() ? Auth::user()->email : $request->email;
 
-        $user = User::where('email', $email)->first();
+        $user = User::query()->where('email', $email)->first();
 
         if (! $user) {
             return $this->errorResponse(null, 'Oops! No record found with your entry.', 404);
@@ -50,7 +50,7 @@ class AccountService
 
     public function verifyUserIdentity(VerifyUserRequest $request): JsonResponse
     {
-        $user = User::where('email',$request->email)->first();
+        $user = User::query()->where('email',$request->email)->first();
 
         if (! $user) {
             return $this->errorResponse(null,'Oops! No record found with your entry.', 404);
@@ -69,7 +69,7 @@ class AccountService
 
     public function verifyCode(CodeRequest $request): JsonResponse
     {
-        $user = User::where('verification_code', $request->verification_code)->first();
+        $user = User::query()->where('verification_code', $request->verification_code)->first();
         if (! $user) {
             return $this->errorResponse(null, 'Invalid code entered, please try it again.', 400);
         }
@@ -87,7 +87,7 @@ class AccountService
 
     public function changePassword(UserResetPassRequest $request): JsonResponse
     {
-        $user = User::where('email', $request->email)->firstOrFail();
+        $user = User::query()->where('email', $request->email)->firstOrFail();
 
         $user->update([
             'password' => bcrypt($request->password),

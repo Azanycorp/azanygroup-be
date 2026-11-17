@@ -23,7 +23,7 @@ class UserResetPassRequest extends FormRequest
     public function rules(): array
     {
          return [
-            'password' => 'required|confirmed|min:6',
+            'password' => ['required', 'confirmed', 'min:6']
         ];
     }
 }

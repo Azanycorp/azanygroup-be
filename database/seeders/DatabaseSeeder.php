@@ -13,13 +13,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-         User::updateOrCreate(
-            ['email' => 'admin@azanygroup.com'],
-            [
-                'name' => 'Admin User',
-                'password' => bcrypt('Password@123'),
-                'email_verified_at' => now(),
-            ],
-        );
+         User::query()->updateOrCreate(['email' => 'admin@azanygroup.com'], [
+             'name' => 'Admin User',
+             'password' => bcrypt('Password@123'),
+             'email_verified_at' => now(),
+         ]);
     }
 }

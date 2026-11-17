@@ -16,9 +16,9 @@ class AdminService
     }
     public function inboxMessages(Request $request): JsonResponse
     {
-        $counts = Inbox::selectRaw('category, COUNT(*) as total')
-            ->groupBy('category')
-            ->pluck('total', 'category');
+       $counts = Inbox::query()->selectRaw('category, COUNT(*) as total')
+             ->groupBy('category')
+             ->pluck('total', 'category');
 
         $query = Inbox::query()
             ->when($request->filled('search'), function ($q) use ($request) {

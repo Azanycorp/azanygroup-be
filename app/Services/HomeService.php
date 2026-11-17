@@ -15,7 +15,7 @@ class HomeService
     use HttpResponses;
     public function addContactMessage(ContactUsRequest $request): JsonResponse
     {
-        Inbox::create([
+        Inbox::query()->create([
             'name' => $request->name,
             'phone' => $request->phone,
             'category' => InboxCategory::CONTACT_US->value,
@@ -29,7 +29,7 @@ class HomeService
 
     public function storeInquiryMessage(InquiryRequest $request): JsonResponse
     {
-        Inbox::create([
+        Inbox::query()->create([
             'role' => $request->role,
             'name' => $request->name,
             'site_url' => $request->site_url,
@@ -46,7 +46,7 @@ class HomeService
     {
          $resume_url = $request->hasFile('resume') ? upload_image($request->file('resume'), 'resumes') : null;
 
-        Inbox::create([
+        Inbox::query()->create([
             'role' => $request->role,
             'name' => $request->name,
             'social_media_url' => $request->social_media_url,

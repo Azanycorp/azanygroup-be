@@ -11,7 +11,7 @@ use App\Http\Controllers\Controller;
 class ProfileController extends Controller
 {
     public function __construct(
-        private ProfileService $profileService
+        private readonly ProfileService $profileService
     ) {
     }
     public function profile(#[CurrentUser] User $user): JsonResponse

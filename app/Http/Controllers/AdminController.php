@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 class AdminController extends Controller
 {
     public function __construct(
-        private AdminService $adminService
+        private readonly AdminService $adminService
     ) {
     }
     public function dashboard(): JsonResponse

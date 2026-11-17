@@ -1,15 +1,15 @@
 <?php
 
 namespace App\Http\Requests;
-
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Foundation\Http\Attributes\FailOnUnknownFields;
 
 #[FailOnUnknownFields]
 class InquiryRequest extends FormRequest
 {
-    
+    /**
+     * @return array<string, array<int, string>>
+     */
     public function rules(): array
     {
          return [

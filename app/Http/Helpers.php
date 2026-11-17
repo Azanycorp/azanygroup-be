@@ -1,8 +1,6 @@
 <?php
 
 use ImageKit\ImageKit;
-use Cloudinary\Cloudinary;
-
 
 if (!function_exists('generate_user_verification_code')) {
     function generate_user_verification_code(): int
@@ -12,7 +10,7 @@ if (!function_exists('generate_user_verification_code')) {
 }
 
 if (!function_exists('image_kit_client')) {
-    function image_kit_client()
+    function image_kit_client(): ImageKit
     {
         return new ImageKit(
             config('services.imagekit.public_key'),
@@ -23,14 +21,22 @@ if (!function_exists('image_kit_client')) {
 }
 
 if (!function_exists('upload_image')) {
-    function upload_image($file, $folder = 'uploads')
+    /**
+     * @return array{provider: string|null, url: string|null, error?: string}
+     */
+    function upload_image(mixed $file, mixed $folder = 'uploads'): array
     {
         try {
             $imageKit = image_kit_client();
             $fileName = time() . '_' . $file->getClientOriginalName();
 
-            $base64 = base64_encode(file_get_contents($file->getRealPath()));
+            $contents = file_get_contents($file->getRealPath());
 
+            if ($contents === false) {
+               throw new RuntimeException('Failed to read uploaded file contents.');
+            }
+
+            $base64 = base64_encode($contents);
             $uploadFile = $imageKit->uploadFile([
                 'file' => "data:image/*;base64,{$base64}",
                 'fileName' => $fileName,
@@ -45,7 +51,7 @@ if (!function_exists('upload_image')) {
             }
         } catch (Exception $e) {
             Log::error('ImageKit Upload Failed: ' . $e->getMessage());
-        }        
+        }
         return [
             'provider' => null,
             'url' => null,
@@ -54,9 +60,3 @@ if (!function_exists('upload_image')) {
     }
 }
 
-if (!function_exists('get_relative_path')) {
-    function get_relative_path($url): string|false|null
-    {
-        return parse_url($url, PHP_URL_PATH);
-    }
-}
