@@ -10,6 +10,6 @@ enum InboxStatus: string
 
       public static function values(): mixed
     {
-        return (new Collection(self::cases()))->pluck('value');
+       return new Collection(self::cases())->pluck('value');
     }
 }
