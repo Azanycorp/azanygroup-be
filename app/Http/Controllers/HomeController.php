@@ -7,6 +7,7 @@ use App\Http\Requests\ContactUsRequest;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\InquiryRequest;
 use App\Http\Requests\OpenApplicationRequest;
+use App\Http\Requests\NewsletterRequest;
 
 class HomeController extends Controller
 {
@@ -25,5 +26,10 @@ class HomeController extends Controller
     public function storeOpenApplication(OpenApplicationRequest $request): JsonResponse
     {
         return $this->homeService->storeOpenApplication($request);
+    }
+
+    public function storeNewsletterSubscription(NewsletterRequest $request): JsonResponse
+    {
+        return $this->homeService->storeNewsletterSubscription($request);
     }
 }

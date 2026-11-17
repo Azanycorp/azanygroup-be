@@ -8,8 +8,9 @@ use App\Http\Controllers\HomeController;
 
 Route::controller(HomeController::class)->group(function () {
     Route::post('contact-us', 'addContactMessage');
-    Route::post('inquiry', 'storeInquiryMessage');
+    Route::post('partner-with-us', 'storeInquiryMessage');
     Route::post('open-application', 'storeOpenApplication');
+    Route::post('newsletter', 'storeNewsletterSubscription');
 });
 
 Route::prefix('auth')->group(function (): void {
@@ -26,6 +27,8 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function (): void {
     Route::controller(AdminController::class)->group(function () {
         Route::get('dashboard', 'dashboard');
         Route::get('inbox-messages', 'inboxMessages');
+        Route::get('inbox-messages/{id}', 'getInboxMessage');
+        Route::put('inbox-messages/{id}', 'updateInboxMessage');
     });
 
     Route::prefix('profile')->controller(ProfileController::class)->group(function () {

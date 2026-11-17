@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Services\AdminService;
 use Illuminate\Http\Request;
+use App\Http\Requests\UpdateInboxRequest;
 
 class AdminController extends Controller
 {
@@ -21,5 +22,13 @@ class AdminController extends Controller
     {
         return $this->adminService->inboxMessages($request);
     }
-    
+    public function getInboxMessage(int $id): JsonResponse
+    {
+        return $this->adminService->getInboxMessage($id);
+    }
+    public function updateInboxMessage(UpdateInboxRequest $request, int $id): JsonResponse
+    {
+        return $this->adminService->updateInboxMessage($request, $id);
+    }
+
 }

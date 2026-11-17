@@ -6,6 +6,8 @@ use Illuminate\Http\JsonResponse;
 use App\Enum\InboxCategory;
 use App\Models\Inbox;
 use App\Http\Resources\InboxResource;
+use App\Models\NewsLetter;
+use App\Http\Requests\UpdateInboxRequest;
 
 class AdminService
 {
@@ -19,6 +21,7 @@ class AdminService
        $counts = Inbox::query()->selectRaw('category, COUNT(*) as total')
              ->groupBy('category')
              ->pluck('total', 'category');
+       $newsLetters = NewsLetter::query()->count();
 
         $query = Inbox::query()
             ->when($request->filled('search'), function ($q) use ($request) {
@@ -39,14 +42,33 @@ class AdminService
 
         $data = [
             'all_forms' => $counts->sum(),
+            'news_letters' => $newsLetters,
             'applications' => $counts->get(InboxCategory::APPLICATION->value, 0),
             'inquiries' => $counts->get(InboxCategory::INQUIRY->value, 0),
             'contact_us' => $counts->get(InboxCategory::CONTACT_US->value, 0),
-            'news_letters' => $counts->get(InboxCategory::NEWSLETTER->value, 0),
             'inbox' => InboxResource::collection($inbox),
         ];
 
         return $this->successResponse($data, 'Inbox messages retrieved successfully.');
+    }
+
+    public function getInboxMessage(int $id): JsonResponse
+    {
+       $inbox = Inbox::query()->where('id', $id)->first();
+       if (!$inbox) {
+            return $this->errorResponse(null, 'Inbox message not found.', 404);
+        }
+
+        return $this->successResponse(new InboxResource($inbox), 'Inbox message retrieved successfully.');
+    }
+    public function updateInboxMessage(UpdateInboxRequest $request,int $id): JsonResponse
+    {
+       $inbox = Inbox::query()->where('id', $id)->first();
+       if (!$inbox) {
+            return $this->errorResponse(null, 'Inbox message not found.', 404);
+        } 
+        $inbox->update(['status' => 'read']);
+        return $this->successResponse(new InboxResource($inbox), 'Inbox message retrieved successfully.');
     }
 
 }

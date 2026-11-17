@@ -3,12 +3,14 @@
 namespace App\Services;
 
 use App\Models\Inbox;
+use App\Models\NewsLetter;
 use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\ContactUsRequest;
 use App\Enum\InboxCategory;
 use App\Http\Requests\InquiryRequest;
 use App\Http\Requests\OpenApplicationRequest;
+use App\Http\Requests\NewsletterRequest;
 
 class HomeService
 {
@@ -44,7 +46,7 @@ class HomeService
 
     public function storeOpenApplication(OpenApplicationRequest $request): JsonResponse
     {
-         $resume_url = $request->hasFile('resume') ? upload_image($request->file('resume'), 'resumes') : null;
+        $resume_url = $request->hasFile('resume') ? upload_image($request->file('resume'), 'resumes') : null;
 
         Inbox::query()->create([
             'role' => $request->role,
@@ -57,5 +59,15 @@ class HomeService
         ]);
         return $this->successResponse(null, 'Open application submitted successfully.');
     }
-    
+
+    public function storeNewsletterSubscription(NewsletterRequest $request): JsonResponse
+    {       
+        NewsLetter::query()->updateOrCreate([
+            'email' => $request->email
+        ], [
+            'email' => $request->email
+        ]);
+        return $this->successResponse(null, 'Newsletter Subscribed successfully.');
+    }
+
 }
