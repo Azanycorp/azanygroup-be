@@ -24,7 +24,7 @@ if (!function_exists('upload_image')) {
     /**
      * @return array{provider: string|null, url: string|null, error?: string}
      */
-    function upload_image(mixed $file, mixed $folder = 'uploads'): array
+    function upload_image(mixed $file, mixed $folder = 'uploads'): mixed
     {
         try {
             $imageKit = image_kit_client();
