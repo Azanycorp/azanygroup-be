@@ -29,6 +29,7 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function (): void {
         Route::get('inbox-messages', 'inboxMessages');
         Route::get('inbox-messages/{id}', 'getInboxMessage');
         Route::put('inbox-messages/{id}', 'updateInboxMessage');
+        Route::post('inbox-messages/{id}/notes', 'addNote');
     });
 
     Route::prefix('profile')->controller(ProfileController::class)->group(function () {

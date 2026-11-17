@@ -8,6 +8,7 @@ use App\Models\Inbox;
 use App\Http\Resources\InboxResource;
 use App\Models\NewsLetter;
 use App\Http\Requests\UpdateInboxRequest;
+use App\Http\Requests\AddNoteRequest;
 
 class AdminService
 {
@@ -54,7 +55,7 @@ class AdminService
 
     public function getInboxMessage(int $id): JsonResponse
     {
-       $inbox = Inbox::query()->where('id', $id)->first();
+       $inbox = Inbox::with('notes')->where('id', $id)->first();
        if (!$inbox) {
             return $this->errorResponse(null, 'Inbox message not found.', 404);
         }
@@ -68,7 +69,19 @@ class AdminService
             return $this->errorResponse(null, 'Inbox message not found.', 404);
         } 
         $inbox->update(['status' => 'read']);
-        return $this->successResponse(new InboxResource($inbox), 'Inbox message retrieved successfully.');
+        return $this->successResponse(null, 'Inbox message updated successfully.');
+    }
+
+    public function addNote(AddNoteRequest $request,int $id): JsonResponse
+    {
+       $inbox = Inbox::query()->where('id', $id)->first();
+
+       if (!$inbox) {
+            return $this->errorResponse(null, 'Inbox message not found.', 404);
+        } 
+
+        $inbox->notes()->create(['note' => $request->note]);
+        return $this->successResponse(null, 'Note added successfully.');
     }
 
 }

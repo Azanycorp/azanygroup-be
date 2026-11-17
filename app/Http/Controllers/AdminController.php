@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Services\AdminService;
 use Illuminate\Http\Request;
 use App\Http\Requests\UpdateInboxRequest;
+use App\Http\Requests\AddNoteRequest;
 
 class AdminController extends Controller
 {
@@ -29,6 +30,10 @@ class AdminController extends Controller
     public function updateInboxMessage(UpdateInboxRequest $request, int $id): JsonResponse
     {
         return $this->adminService->updateInboxMessage($request, $id);
+    }
+    public function addNote(AddNoteRequest $request,int $id): JsonResponse
+    {
+        return $this->adminService->addNote($request, $id);
     }
 
 }

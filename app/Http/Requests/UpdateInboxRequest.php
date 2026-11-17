@@ -15,7 +15,6 @@ class UpdateInboxRequest extends FormRequest
     public function rules(): array
     {
           return [
-            'note' => ['required', 'string', 'max:255'],
             'status' => ['required', 'string', 'max:255',Rule::in(InboxStatus::values())],
         ];
     }

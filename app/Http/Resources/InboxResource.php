@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Models\Inbox;
+use App\Models\InboxNote;
 /**
  * @mixin Inbox
  */
@@ -33,7 +34,12 @@ class InboxResource extends JsonResource
             'site_url' => $this->site_url,
             'resume_url' => $this->resume_url,
             'message' => $this->message,
-            'date' => $this->created_at?->toISOString(),
+            'date' => $this->created_at?->diffForHumans(),
+            'notes' => $this->whenLoaded('notes', fn() => $this->notes->map(fn(InboxNote $note): array => [
+                'id' => $note->id,
+                'note' => $note->note,
+                'date' => $note->created_at?->diffForHumans(),
+            ])),
         ];
     }
 }
