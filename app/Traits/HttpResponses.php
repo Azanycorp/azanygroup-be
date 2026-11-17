@@ -2,25 +2,25 @@
 
 namespace App\Traits;
 
-use Illuminate\Http\JsonResponse;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\JsonResponse;
 
 trait HttpResponses
 {
     /**
      * Return a success JSON response.
      *
-     * @param string $message
-     * @param mixed $data
-     * @param int $statusCode
+     * @param  string  $message
+     * @param  mixed  $data
+     * @param  int  $statusCode
      * @return JsonResponse
      */
-    protected function successResponse($data, $message= null, $statusCode = 200)
+    protected function successResponse($data, $message = null, $statusCode = 200)
     {
         return response()->json([
             'success' => true,
             'message' => $message,
-            'data' => $data
+            'data' => $data,
         ], $statusCode);
     }
 
@@ -32,14 +32,14 @@ trait HttpResponses
         return response()->json([
             'success' => false,
             'message' => $message,
-            'errors' => $data
+            'errors' => $data,
         ], $statusCode);
     }
 
     /**
      * Return a custom paginated response.
      *
-     * @param LengthAwarePaginator<int, mixed> $resource
+     * @param  LengthAwarePaginator<int, mixed>  $resource
      */
     protected function paginatedResponse(LengthAwarePaginator $resource, string $message, int $statusCode = 200): JsonResponse
     {
@@ -52,7 +52,7 @@ trait HttpResponses
                 'total' => $resource->total(),
                 'per_page' => $resource->perPage(),
                 'last_page' => $resource->lastPage(),
-            ]
+            ],
         ], $statusCode);
     }
 }

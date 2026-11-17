@@ -1,8 +1,9 @@
 <?php
 
 namespace App\Http\Requests;
-use Illuminate\Foundation\Http\FormRequest;
+
 use Illuminate\Foundation\Http\Attributes\FailOnUnknownFields;
+use Illuminate\Foundation\Http\FormRequest;
 
 #[FailOnUnknownFields]
 class NewsletterRequest extends FormRequest
@@ -12,7 +13,7 @@ class NewsletterRequest extends FormRequest
      */
     public function rules(): array
     {
-          return [
+        return [
             'email' => ['required', 'email', 'unique:news_letters,email'],
         ];
     }

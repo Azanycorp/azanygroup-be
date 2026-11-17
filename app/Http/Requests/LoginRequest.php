@@ -4,24 +4,24 @@ namespace App\Http\Requests;
 
 use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
+use Illuminate\Foundation\Http\Attributes\FailOnUnknownFields;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Foundation\Http\Attributes\FailOnUnknownFields;
 
 #[FailOnUnknownFields]
 class LoginRequest extends FormRequest
 {
-   /**
+    /**
      * @return array<string, array<int, string>>
      */
     public function rules(): array
     {
         return [
             'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string']
+            'password' => ['required', 'string'],
         ];
     }
 

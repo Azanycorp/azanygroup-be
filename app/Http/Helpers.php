@@ -2,14 +2,14 @@
 
 use ImageKit\ImageKit;
 
-if (!function_exists('generate_user_verification_code')) {
+if (! function_exists('generate_user_verification_code')) {
     function generate_user_verification_code(): int
     {
         return mt_rand(1000, 9999);
     }
 }
 
-if (!function_exists('image_kit_client')) {
+if (! function_exists('image_kit_client')) {
     function image_kit_client(): ImageKit
     {
         return new ImageKit(
@@ -20,7 +20,7 @@ if (!function_exists('image_kit_client')) {
     }
 }
 
-if (!function_exists('upload_image')) {
+if (! function_exists('upload_image')) {
     /**
      * @return array{provider: string|null, url: string|null, error?: string}
      */
@@ -28,12 +28,12 @@ if (!function_exists('upload_image')) {
     {
         try {
             $imageKit = image_kit_client();
-            $fileName = time() . '_' . $file->getClientOriginalName();
+            $fileName = time().'_'.$file->getClientOriginalName();
 
             $contents = file_get_contents($file->getRealPath());
 
             if ($contents === false) {
-               throw new RuntimeException('Failed to read uploaded file contents.');
+                throw new RuntimeException('Failed to read uploaded file contents.');
             }
 
             $base64 = base64_encode($contents);
@@ -46,12 +46,13 @@ if (!function_exists('upload_image')) {
                 'isPrivateFile' => false,
             ]);
 
-            if (!empty($uploadFile->result->url)) {
+            if (! empty($uploadFile->result->url)) {
                 return $uploadFile->result->url;
             }
         } catch (Exception $e) {
-            Log::error('ImageKit Upload Failed: ' . $e->getMessage());
+            Log::error('ImageKit Upload Failed: '.$e->getMessage());
         }
+
         return [
             'provider' => null,
             'url' => null,
@@ -59,4 +60,3 @@ if (!function_exists('upload_image')) {
         ];
     }
 }
-

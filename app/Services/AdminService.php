@@ -1,28 +1,32 @@
 <?php
+
 namespace App\Services;
-use App\Traits\HttpResponses;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+
 use App\Enum\InboxCategory;
-use App\Models\Inbox;
-use App\Http\Resources\InboxResource;
-use App\Models\NewsLetter;
-use App\Http\Requests\UpdateInboxRequest;
 use App\Http\Requests\AddNoteRequest;
+use App\Http\Requests\UpdateInboxRequest;
+use App\Http\Resources\InboxResource;
+use App\Models\Inbox;
+use App\Models\NewsLetter;
+use App\Traits\HttpResponses;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class AdminService
 {
     use HttpResponses;
+
     public function dashboard(): JsonResponse
     {
         return $this->successResponse(null, 'Dashboard data retrieved successfully.');
     }
+
     public function inboxMessages(Request $request): JsonResponse
     {
-       $counts = Inbox::query()->selectRaw('category, COUNT(*) as total')
-             ->groupBy('category')
-             ->pluck('total', 'category');
-       $newsLetters = NewsLetter::query()->count();
+        $counts = Inbox::query()->selectRaw('category, COUNT(*) as total')
+            ->groupBy('category')
+            ->pluck('total', 'category');
+        $newsLetters = NewsLetter::query()->count();
 
         $query = Inbox::query()
             ->when($request->filled('search'), function ($q) use ($request) {
@@ -55,33 +59,35 @@ class AdminService
 
     public function getInboxMessage(int $id): JsonResponse
     {
-       $inbox = Inbox::with('notes')->where('id', $id)->first();
-       if (!$inbox) {
+        $inbox = Inbox::with('notes')->where('id', $id)->first();
+        if (! $inbox) {
             return $this->errorResponse(null, 'Inbox message not found.', 404);
         }
 
         return $this->successResponse(new InboxResource($inbox), 'Inbox message retrieved successfully.');
     }
-    public function updateInboxMessage(UpdateInboxRequest $request,int $id): JsonResponse
+
+    public function updateInboxMessage(UpdateInboxRequest $request, int $id): JsonResponse
     {
-       $inbox = Inbox::query()->where('id', $id)->first();
-       if (!$inbox) {
+        $inbox = Inbox::query()->where('id', $id)->first();
+        if (! $inbox) {
             return $this->errorResponse(null, 'Inbox message not found.', 404);
-        } 
+        }
         $inbox->update(['status' => 'read']);
+
         return $this->successResponse(null, 'Inbox message updated successfully.');
     }
 
-    public function addNote(AddNoteRequest $request,int $id): JsonResponse
+    public function addNote(AddNoteRequest $request, int $id): JsonResponse
     {
-       $inbox = Inbox::query()->where('id', $id)->first();
+        $inbox = Inbox::query()->where('id', $id)->first();
 
-       if (!$inbox) {
+        if (! $inbox) {
             return $this->errorResponse(null, 'Inbox message not found.', 404);
-        } 
+        }
 
         $inbox->notes()->create(['note' => $request->note]);
+
         return $this->successResponse(null, 'Note added successfully.');
     }
-
 }

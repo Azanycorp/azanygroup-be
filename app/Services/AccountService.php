@@ -1,20 +1,23 @@
 <?php
+
 namespace App\Services;
+
+use App\Http\Requests\CodeRequest;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\UserResetPassRequest;
 use App\Http\Requests\VerifyUserRequest;
+use App\Http\Resources\UserResource;
 use App\Mail\PasswordResetCodeMail;
 use App\Models\User;
 use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Requests\UserResetPassRequest;
-use App\Http\Requests\CodeRequest;
 use Illuminate\Support\Facades\Mail;
-use App\Http\Requests\LoginRequest;
-use App\Http\Resources\UserResource;
 
 class AccountService
 {
     use HttpResponses;
+
     public function login(LoginRequest $request): JsonResponse
     {
         $user = $request->authenticate();
@@ -50,10 +53,10 @@ class AccountService
 
     public function verifyUserIdentity(VerifyUserRequest $request): JsonResponse
     {
-        $user = User::query()->where('email',$request->email)->first();
+        $user = User::query()->where('email', $request->email)->first();
 
         if (! $user) {
-            return $this->errorResponse(null,'Oops! No record found with your entry.', 404);
+            return $this->errorResponse(null, 'Oops! No record found with your entry.', 404);
         }
 
         $verificationCode = generate_user_verification_code();
@@ -62,7 +65,7 @@ class AccountService
             'verification_code_expire_at' => now()->addMinutes(10),
         ]);
 
-       Mail::to($user->email)->send(new PasswordResetCodeMail($user));
+        Mail::to($user->email)->send(new PasswordResetCodeMail($user));
 
         return $this->successResponse(null, 'A verification code has been sent to your email');
     }
@@ -95,5 +98,4 @@ class AccountService
 
         return $this->successResponse(null, 'Password Reset successfully!');
     }
-
 }

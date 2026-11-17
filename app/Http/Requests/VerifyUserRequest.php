@@ -1,8 +1,9 @@
 <?php
 
 namespace App\Http\Requests;
-use Illuminate\Foundation\Http\FormRequest;
+
 use Illuminate\Foundation\Http\Attributes\FailOnUnknownFields;
+use Illuminate\Foundation\Http\FormRequest;
 
 #[FailOnUnknownFields]
 class VerifyUserRequest extends FormRequest
@@ -12,8 +13,8 @@ class VerifyUserRequest extends FormRequest
      */
     public function rules(): array
     {
-         return [
-            'email' => ['required', 'email']
+        return [
+            'email' => ['required', 'email'],
         ];
     }
 }
