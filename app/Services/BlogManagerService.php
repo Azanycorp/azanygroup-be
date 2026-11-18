@@ -14,10 +14,11 @@ use App\Http\Requests\NewCareerRequest;
 use Illuminate\Support\Str;
 use App\Http\Requests\NewBlogRequest;
 use App\Http\Resources\BlogResource;
+use App\Traits\CreateActivityLog;
 
 class BlogManagerService
 {
-    use HttpResponses;
+    use HttpResponses,CreateActivityLog;
 
     public function allBlogs(Request $request): JsonResponse
     {
@@ -65,7 +66,7 @@ class BlogManagerService
             'content' => $request->content,
             'is_published' => $request->is_published,
         ]);
-
+$this->createLog(auth()->user(), "Added new blog post with ID: " . Blog::latest()->first()->id);
         return $this->successResponse(null, 'Blog post added successfully.');
     }
 
@@ -82,6 +83,8 @@ class BlogManagerService
             'content' => $request->content ?? $blog->content,
             'is_published' => $request->is_published ?? $blog->is_published
         ]);
+        
+$this->createLog(auth()->user(), "Updated blog post with ID: $id");
 
         return $this->successResponse(null, 'Blog post details updated successfully.');
     }
@@ -92,6 +95,9 @@ class BlogManagerService
         if (!$blog) {
             return $this->errorResponse(null, 'Blog post not found.', 404);
         }
+
+        $this->createLog(auth()->user(), "Deleted blog post with ID: $id");
+
         $blog->delete();
 
         return $this->successResponse(null, 'Blog post deleted successfully.');

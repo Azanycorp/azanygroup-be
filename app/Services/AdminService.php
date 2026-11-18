@@ -12,10 +12,11 @@ use App\Models\NewsLetter;
 use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Traits\CreateActivityLog;
 
 class AdminService
 {
-    use HttpResponses;
+    use HttpResponses,CreateActivityLog;
 
     public function dashboard(): JsonResponse
     {
@@ -78,7 +79,7 @@ class AdminService
             return $this->errorResponse(null, 'Inbox message not found.', 404);
         }
         $inbox->update(['status' => 'read']);
-
+$this->createLog(auth()->user(), "Updated inbox message with ID: $id to status 'read'");
         return $this->successResponse(null, 'Inbox message updated successfully.');
     }
 
@@ -91,7 +92,7 @@ class AdminService
         }
 
         $inbox->notes()->create(['note' => $request->note]);
-
+        $this->createLog(auth()->user(), "Added note to inbox message with ID: $id");   
         return $this->successResponse(null, 'Note added successfully.');
     }
 }

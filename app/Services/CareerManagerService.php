@@ -13,10 +13,11 @@ use Illuminate\Http\Request;
 use App\Http\Resources\CareerResource;
 use App\Http\Requests\NewCareerRequest;
 use Illuminate\Support\Str;
+use App\Traits\CreateActivityLog;
 
 class CareerManagerService
 {
-    use HttpResponses;
+    use HttpResponses,CreateActivityLog;
 
     public function allApplicants(Request $request): JsonResponse
     {
@@ -103,7 +104,7 @@ class CareerManagerService
             'is_active' => $request->is_active,
             'is_published' => $request->is_published
         ]);
-
+        $this->createLog(auth()->user(), "Added new career application with ID: " . Career::latest()->first()->id);
         return $this->successResponse(null, 'Career application added successfully.');
     }
 
@@ -127,6 +128,8 @@ class CareerManagerService
             'is_published' => $request->is_published ?? $career->is_published
         ]);
 
+        $this->createLog(auth()->user(), "Updated career application with ID: $id");
+
         return $this->successResponse(null, 'Career details updated successfully.');
     }
 
@@ -136,6 +139,9 @@ class CareerManagerService
         if (!$career) {
             return $this->errorResponse(null, 'Career application not found.', 404);
         }
+
+        $this->createLog(auth()->user(), "Deleted career application with ID: $id");
+       
         $career->delete();
 
         return $this->successResponse(null, 'Career application deleted successfully.');
