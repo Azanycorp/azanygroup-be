@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enum\InboxCategory;
+use App\Enum\InboxStatus;
 use App\Http\Requests\AddNoteRequest;
 use App\Http\Requests\UpdateInboxRequest;
 use App\Http\Resources\InboxResource;
@@ -18,6 +19,9 @@ class AdminService
 
     public function dashboard(): JsonResponse
     {
+        $messages = Inbox::query()->where('status', InboxStatus::NEW->value)->count();
+        $published = Blog::query()->where('status', BlogStatus::PUBLISHED->value)->count();
+        
         return $this->successResponse(null, 'Dashboard data retrieved successfully.');
     }
 
