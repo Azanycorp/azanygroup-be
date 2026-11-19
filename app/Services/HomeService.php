@@ -13,6 +13,7 @@ use App\Models\NewsLetter;
 use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\JobApplicationRequest;
+use Illuminate\Support\Str;
 
 class HomeService
 {
@@ -60,13 +61,12 @@ class HomeService
             return $this->errorResponse(null, 'This Vacancy is no longer available.', 400);
         }
 
-        $name = "{ucfirst($request->first_name)} {ucfirst($request->last_name)}";
-
+       
         $resume_url = $request->hasFile('resume') ? upload_image($request->file('resume'), 'resumes') : null;
 
         Inbox::query()->create([
             'location' => $request->location,
-            'name' => $name,
+            'name' => Str::title("{$request->first_name} {$request->last_name}"),
             'job_id' => $request->job_id,
             'job_title' => $job->title,
             'social_media_url' => $request->social_media_url,

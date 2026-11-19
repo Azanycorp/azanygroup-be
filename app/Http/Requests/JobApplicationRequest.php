@@ -19,7 +19,7 @@ class JobApplicationRequest extends FormRequest
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:100'],
-            'phone' => ['required', 'string', 'max:20'],
+            'phone' => ['required', 'string', 'max:11','max:14'],
             'social_media_url' => ['nullable', 'string', 'max:255', 'url'],
             'resume' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:2048'],
             'message' => ['required', 'string', 'max:255'],

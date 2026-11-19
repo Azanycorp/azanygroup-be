@@ -38,13 +38,20 @@ class AdminService
                 $search = "%{$request->search}%";
                 $q->where(function ($subQuery) use ($search) {
                     $subQuery->where('name', 'like', $search)
-                        ->orWhere('email', 'like', $search);
+                        ->orWhere('email', 'like', $search)
+                        ->orWhere('category', 'like', $search);
                 });
             })
             ->when(
                 $request->filled('status') && $request->input('status') !== 'all',
                 function ($q) use ($request) {
                     $q->where('status', $request->input('status'));
+                }
+            )
+            ->when(
+                $request->filled('category') && $request->input('category') !== 'all',
+                function ($q) use ($request) {
+                    $q->where('category', $request->input('category'));
                 }
             );
 
