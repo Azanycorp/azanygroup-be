@@ -21,7 +21,7 @@ class HomeService
     public function addContactMessage(ContactUsRequest $request): JsonResponse
     {
         Inbox::query()->create([
-            'name' => $request->name,
+            'name' => ucfirst($request->name),
             'phone' => $request->phone,
             'category' => InboxCategory::CONTACT_US->value,
             'email' => $request->email,
@@ -37,7 +37,7 @@ class HomeService
     {
         Inbox::query()->create([
             'role' => $request->role,
-            'name' => $request->name,
+            'name' => ucfirst($request->name),
             'site_url' => $request->site_url,
             'category' => InboxCategory::INQUIRY->value,
             'email' => $request->email,
@@ -59,16 +59,16 @@ class HomeService
         if(!$job->is_active && $job->closing_date < date('Y-m-d')){
             return $this->errorResponse(null, 'This Vacancy is no longer available.', 400);
         }
-        
-        $name = "{$request->first_name} {$request->last_name}";
+
+        $name = "{ucfirst($request->first_name)} {ucfirst($request->last_name)}";
 
         $resume_url = $request->hasFile('resume') ? upload_image($request->file('resume'), 'resumes') : null;
 
         Inbox::query()->create([
-            'role' => $request->role,
+            'location' => $request->location,
             'name' => $name,
             'job_id' => $request->job_id,
-            'job_title' => $job ? $job->title : null,
+            'job_title' => $job->title,
             'social_media_url' => $request->social_media_url,
             'category' => InboxCategory::APPLICATION->value,
             'email' => $request->email,
@@ -85,7 +85,7 @@ class HomeService
 
         Inbox::query()->create([
             'role' => $request->role,
-            'name' => $request->name,
+            'name' => ucfirst($request->name),
             'social_media_url' => $request->social_media_url,
             'category' => InboxCategory::APPLICATION->value,
             'email' => $request->email,

@@ -15,7 +15,7 @@ class JobApplicationRequest extends FormRequest
     {
         return [
             'job_id' => ['required', 'integer', 'exists:careers,id'],
-            'role' => ['required', 'string', 'max:255'],
+            'location' => ['required', 'string', 'max:255'],
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:100'],

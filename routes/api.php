@@ -11,6 +11,7 @@ Route::controller(HomeController::class)->group(function () {
     Route::post('partner-with-us', 'storeInquiryMessage');
     Route::post('open-application', 'storeOpenApplication');
     Route::post('newsletter', 'storeNewsletterSubscription');
+    Route::post('job-application', 'storeJobApplication');
 });
 
 Route::prefix('auth')->group(function (): void {
