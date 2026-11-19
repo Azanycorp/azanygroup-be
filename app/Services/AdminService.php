@@ -7,12 +7,15 @@ use App\Enum\InboxStatus;
 use App\Http\Requests\AddNoteRequest;
 use App\Http\Requests\UpdateInboxRequest;
 use App\Http\Resources\InboxResource;
+use App\Models\ActivityLog;
+use App\Models\Career;
 use App\Models\Inbox;
 use App\Models\NewsLetter;
 use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Traits\CreateActivityLog;
+use App\Models\Blog;
 
 class AdminService
 {
@@ -21,8 +24,14 @@ class AdminService
     public function dashboard(): JsonResponse
     {
         $messages = Inbox::query()->where('status', InboxStatus::NEW->value)->count();
-        $published = Blog::query()->where('status', BlogStatus::PUBLISHED->value)->count();
-        
+        $publishedBlogs = Blog::query()->where('is_published',true)->count();
+        $unpublishedBlogs = Blog::query()->where('is_published',false)->count();
+
+        $publishedCareers = Career::query()->where('is_published',true)->count();
+        $unpublishedCareers = Career::query()->where('is_published',false)->count();
+
+        $activities = ActivityLogResource::Collection(ActivityLog::query()->latest()->take(10)->get());
+
         return $this->successResponse(null, 'Dashboard data retrieved successfully.');
     }
 
@@ -86,7 +95,7 @@ class AdminService
             return $this->errorResponse(null, 'Inbox message not found.', 404);
         }
         $inbox->update(['status' => 'read']);
-$this->createLog(auth()->user(), "Updated inbox message with ID: $id to status 'read'");
+        $this->createLog(auth()->user(), "Updated inbox message with ID: $id to status 'read'");
         return $this->successResponse(null, 'Inbox message updated successfully.');
     }
 
