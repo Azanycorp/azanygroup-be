@@ -104,6 +104,7 @@ class CareerManagerService
             'is_active' => $request->is_active,
             'is_published' => $request->is_published
         ]);
+        
         $this->createLog(auth()->user(), "Added new career application with ID: " . Career::latest()->first()->id);
         return $this->successResponse(null, 'Career application added successfully.');
     }

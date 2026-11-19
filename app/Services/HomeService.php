@@ -7,10 +7,12 @@ use App\Http\Requests\ContactUsRequest;
 use App\Http\Requests\InquiryRequest;
 use App\Http\Requests\NewsletterRequest;
 use App\Http\Requests\OpenApplicationRequest;
+use App\Models\Career;
 use App\Models\Inbox;
 use App\Models\NewsLetter;
 use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
+use App\Http\Requests\JobApplicationRequest;
 
 class HomeService
 {
@@ -45,6 +47,36 @@ class HomeService
         ]);
 
         return $this->successResponse(null, 'Inquiry message sent successfully.');
+    }
+
+    public function storeJobApplication(JobApplicationRequest $request): JsonResponse
+    {
+        $job= Career::query()->find($request->job_id);
+        if(!$job){
+            return $this->errorResponse(null, 'Job not found.', 404);
+        }
+
+        if(!$job->is_active && $job->closing_date < date('Y-m-d')){
+            return $this->errorResponse(null, 'This Vacancy is no longer available.', 400);
+        }
+        
+        $name = "{$request->first_name} {$request->last_name}";
+
+        $resume_url = $request->hasFile('resume') ? upload_image($request->file('resume'), 'resumes') : null;
+
+        Inbox::query()->create([
+            'role' => $request->role,
+            'name' => $name,
+            'job_id' => $request->job_id,
+            'job_title' => $job ? $job->title : null,
+            'social_media_url' => $request->social_media_url,
+            'category' => InboxCategory::APPLICATION->value,
+            'email' => $request->email,
+            'resume_url' => $resume_url,
+            'message' => $request->message,
+        ]);
+
+        return $this->successResponse(null, 'Job application submitted successfully.');
     }
 
     public function storeOpenApplication(OpenApplicationRequest $request): JsonResponse
