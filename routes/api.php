@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CareerBlogManagerController;
 
 Route::controller(HomeController::class)->group(function () {
     Route::post('contact-us', 'addContactMessage');
@@ -31,6 +32,23 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function (): void {
         Route::get('inbox-messages/{id}', 'getInboxMessage');
         Route::put('inbox-messages/{id}', 'updateInboxMessage');
         Route::post('inbox-messages/{id}/notes', 'addNote');
+    });
+
+    Route::controller(CareerBlogManagerController::class)->group(function () {
+        Route::prefix('careers')->group(function () {
+            Route::get('/', 'allApplications');
+            Route::post('add', 'addNewApplication');
+            Route::get('/details/{id}', 'getApplicationDetails');
+            Route::put('/update/{id}', 'updateApplication');
+            Route::delete('/delete/{id}', 'deleteApplication');
+        });
+        Route::prefix('blogs')->group(function () {
+            Route::get('', 'dashboard');
+            Route::post('add', 'addNewBlog');
+            Route::get('/details/{id}', 'getBlogDetails');
+            Route::put('/update/{id}', 'updateBlog');
+            Route::delete('/delete/{id}', 'deleteBlog');
+        });
     });
 
     Route::prefix('profile')->controller(ProfileController::class)->group(function () {

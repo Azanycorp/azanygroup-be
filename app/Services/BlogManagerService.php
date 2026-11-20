@@ -2,9 +2,7 @@
 
 namespace App\Services;
 
-use App\Enum\InboxCategory;
 use App\Models\Blog;
-use App\Models\Career;
 use App\Traits\HttpResponses;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;

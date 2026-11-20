@@ -2,10 +2,6 @@
 
 namespace App\Services;
 
-use App\Enum\InboxCategory;
-use App\Http\Requests\AddNoteRequest;
-use App\Http\Requests\UpdateInboxRequest;
-use App\Http\Resources\InboxResource;
 use App\Models\Career;
 use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
