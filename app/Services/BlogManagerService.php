@@ -9,8 +9,6 @@ use App\Traits\HttpResponses;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Resources\CareerResource;
-use App\Http\Requests\NewCareerRequest;
 use Illuminate\Support\Str;
 use App\Http\Requests\NewBlogRequest;
 use App\Http\Resources\BlogResource;

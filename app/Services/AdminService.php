@@ -16,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Traits\CreateActivityLog;
 use App\Models\Blog;
+use App\Http\Resources\ActivityLogResource;
 
 class AdminService
 {
@@ -32,7 +33,14 @@ class AdminService
 
         $activities = ActivityLogResource::Collection(ActivityLog::query()->latest()->take(10)->get());
 
-        return $this->successResponse(null, 'Dashboard data retrieved successfully.');
+        $data = [
+            'new_messages' => $messages,
+            'published' => $publishedBlogs + $publishedCareers,
+            'unpublished' => $unpublishedBlogs + $unpublishedCareers,
+            'recent_activities' => $activities
+        ];
+
+        return $this->successResponse($data, 'Dashboard data retrieved successfully.');
     }
 
     public function inboxMessages(Request $request): JsonResponse
