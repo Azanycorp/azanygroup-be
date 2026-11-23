@@ -24,7 +24,7 @@ class ActivityLogResource extends JsonResource
             'action' => $this->action,
             'os' => $this->os,
             'browser' => $this->browser,
-            'ip_address' => $this->ip_address
+            'ip_address' => $this->ip_address,
         ];
     }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Blog;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Models\Blog;
 
 /**
  * @mixin Blog
@@ -25,7 +25,7 @@ class BlogResource extends JsonResource
             'author' => $this->author,
             'short_description' => $this->short_description,
             'content' => $this->content,
-            'is_published' => $this->is_published
+            'is_published' => $this->is_published,
         ];
     }
 }

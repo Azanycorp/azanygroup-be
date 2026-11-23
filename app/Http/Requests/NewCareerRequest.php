@@ -22,8 +22,8 @@ class NewCareerRequest extends FormRequest
             'description' => ['required'],
             'location' => ['required'],
             'closing_date' => ['required', 'date', 'after_or_equal:today'],
-            'is_active' => ['required','boolean'],
-            'is_published' => ['required','boolean']
+            'is_active' => ['required', 'boolean'],
+            'is_published' => ['required', 'boolean'],
         ];
     }
 }

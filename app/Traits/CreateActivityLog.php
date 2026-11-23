@@ -3,8 +3,8 @@
 namespace App\Traits;
 
 use App\Models\ActivityLog;
-use Jenssegers\Agent\Facades\Agent;
 use App\Models\User;
+use Jenssegers\Agent\Facades\Agent;
 
 trait CreateActivityLog
 {

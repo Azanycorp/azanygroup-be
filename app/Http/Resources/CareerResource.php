@@ -30,7 +30,7 @@ class CareerResource extends JsonResource
             'location' => $this->location,
             'closing_date' => $this->closing_date,
             'is_active' => $this->is_active,
-            'is_published' => $this->is_published
+            'is_published' => $this->is_published,
         ];
     }
 }

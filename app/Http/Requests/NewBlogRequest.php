@@ -17,7 +17,7 @@ class NewBlogRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'short_description' => ['required', 'string'],
             'content' => ['required'],
-            'is_published' => ['required', 'boolean']
+            'is_published' => ['required', 'boolean'],
         ];
     }
 }

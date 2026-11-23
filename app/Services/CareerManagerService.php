@@ -2,18 +2,18 @@
 
 namespace App\Services;
 
+use App\Http\Requests\NewCareerRequest;
+use App\Http\Resources\CareerResource;
 use App\Models\Career;
+use App\Traits\CreateActivityLog;
 use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Resources\CareerResource;
-use App\Http\Requests\NewCareerRequest;
 use Illuminate\Support\Str;
-use App\Traits\CreateActivityLog;
 
 class CareerManagerService
 {
-    use HttpResponses,CreateActivityLog;
+    use CreateActivityLog,HttpResponses;
 
     public function allApplications(Request $request): JsonResponse
     {
@@ -40,7 +40,7 @@ class CareerManagerService
     public function getApplicationDetails(int $id): JsonResponse
     {
         $career = Career::query()->where('id', $id)->first();
-        if (!$career) {
+        if (! $career) {
             return $this->errorResponse(null, 'Career application not found.', 404);
         }
 
@@ -60,17 +60,18 @@ class CareerManagerService
             'location' => $request->location,
             'closing_date' => $request->closing_date,
             'is_active' => $request->is_active,
-            'is_published' => $request->is_published
+            'is_published' => $request->is_published,
         ]);
-        
-        $this->createLog(auth()->user(), "Added new career application with ID: " . Career::query()->latest()->first()->id);
+
+        $this->createLog(auth()->user(), 'Added new career application with ID: '.Career::query()->latest()->first()->id);
+
         return $this->successResponse(null, 'Career application added successfully.');
     }
 
     public function updateApplication(NewCareerRequest $request, int $id): JsonResponse
     {
         $career = Career::query()->where('id', $id)->first();
-        if (!$career) {
+        if (! $career) {
             return $this->errorResponse(null, 'Career application not found.', 404);
         }
         $career->update([
@@ -84,7 +85,7 @@ class CareerManagerService
             'location' => $request->location ?? $career->location,
             'closing_date' => $request->closing_date ?? $career->closing_date,
             'is_active' => $request->is_active ?? $career->is_active,
-            'is_published' => $request->is_published ?? $career->is_published
+            'is_published' => $request->is_published ?? $career->is_published,
         ]);
 
         $this->createLog(auth()->user(), "Updated career application with ID: $id");
@@ -95,12 +96,12 @@ class CareerManagerService
     public function deleteApplication(int $id): JsonResponse
     {
         $career = Career::query()->where('id', $id)->first();
-        if (!$career) {
+        if (! $career) {
             return $this->errorResponse(null, 'Career application not found.', 404);
         }
 
         $this->createLog(auth()->user(), "Deleted career application with ID: $id");
-       
+
         $career->delete();
 
         return $this->successResponse(null, 'Career application deleted successfully.');

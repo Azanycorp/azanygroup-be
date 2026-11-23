@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enum\InboxCategory;
 use App\Http\Requests\ContactUsRequest;
 use App\Http\Requests\InquiryRequest;
+use App\Http\Requests\JobApplicationRequest;
 use App\Http\Requests\NewsletterRequest;
 use App\Http\Requests\OpenApplicationRequest;
 use App\Models\Career;
@@ -12,21 +13,22 @@ use App\Models\Inbox;
 use App\Models\NewsLetter;
 use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
-use App\Http\Requests\JobApplicationRequest;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Str;
 
 class HomeService
 {
     use HttpResponses;
-   public function migrate(): JsonResponse
+
+    public function migrate(): JsonResponse
     {
         Artisan::call('migrate', [
             '--force' => true,
         ]);
-      return $this->successResponse(Artisan::output(),'Migration completed successfully.');
+
+        return $this->successResponse(Artisan::output(), 'Migration completed successfully.');
     }
-    
+
     public function addContactMessage(ContactUsRequest $request): JsonResponse
     {
         Inbox::query()->create([
@@ -60,17 +62,16 @@ class HomeService
 
     public function storeJobApplication(JobApplicationRequest $request): JsonResponse
     {
-        $job= Career::query()->find($request->job_id);
-        if(!$job){
+        $job = Career::query()->find($request->job_id);
+        if (! $job) {
             return $this->errorResponse(null, 'Job not found.', 404);
         }
 
-         /** @var Career $job */
-        if(!$job->is_active && $job->closing_date < date('Y-m-d')){
+        /** @var Career $job */
+        if (! $job->is_active && $job->closing_date < date('Y-m-d')) {
             return $this->errorResponse(null, 'This Vacancy is no longer available.', 400);
         }
 
-       
         $resume_url = $request->hasFile('resume') ? upload_image($request->file('resume'), 'resumes') : null;
 
         Inbox::query()->create([

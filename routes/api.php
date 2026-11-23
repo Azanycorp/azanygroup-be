@@ -2,13 +2,13 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CareerBlogManagerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CareerBlogManagerController;
 
 Route::controller(HomeController::class)->group(function () {
-    Route::post('/run-migration','migrate');
+    Route::post('/run-migration', 'migrate');
     Route::post('contact-us', 'addContactMessage');
     Route::post('partner-with-us', 'storeInquiryMessage');
     Route::post('open-application', 'storeOpenApplication');

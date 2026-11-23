@@ -53,8 +53,8 @@ trait HttpResponses
             ? $resource->resource
             : $resource;
 
-        if (!$paginator instanceof LengthAwarePaginator) {
-           throw new InvalidArgumentException('Expected a LengthAwarePaginator or AnonymousResourceCollection.');
+        if (! $paginator instanceof LengthAwarePaginator) {
+            throw new InvalidArgumentException('Expected a LengthAwarePaginator or AnonymousResourceCollection.');
         }
 
         // Extract raw array items or serialize collection

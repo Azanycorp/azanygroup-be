@@ -2,20 +2,20 @@
 
 namespace App\Services;
 
+use App\Http\Requests\NewBlogRequest;
+use App\Http\Resources\BlogResource;
 use App\Models\Blog;
+use App\Models\User;
+use App\Traits\CreateActivityLog;
 use App\Traits\HttpResponses;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use App\Http\Requests\NewBlogRequest;
-use App\Http\Resources\BlogResource;
-use App\Traits\CreateActivityLog;
-use App\Models\User;
 
 class BlogManagerService
 {
-    use HttpResponses,CreateActivityLog;
+    use CreateActivityLog,HttpResponses;
 
     public function allBlogs(Request $request): JsonResponse
     {
@@ -42,7 +42,7 @@ class BlogManagerService
     public function getBlogDetails(int $id): JsonResponse
     {
         $blog = Blog::query()->where('id', $id)->first();
-        if (!$blog) {
+        if (! $blog) {
             return $this->errorResponse(null, 'Blog post not found.', 404);
         }
 
@@ -60,14 +60,15 @@ class BlogManagerService
             'category' => $request->category,
             'is_published' => $request->is_published,
         ]);
-    $this->createLog($user, "Added new blog post with ID: " . Blog::query()->latest()->first()->id);
+        $this->createLog($user, 'Added new blog post with ID: '.Blog::query()->latest()->first()->id);
+
         return $this->successResponse(null, 'Blog post added successfully.');
     }
 
     public function updateBlog(NewBlogRequest $request, int $id): JsonResponse
     {
         $blog = Blog::query()->where('id', $id)->first();
-        if (!$blog) {
+        if (! $blog) {
             return $this->errorResponse(null, 'Blog post not found.', 404);
         }
         $blog->update([
@@ -76,9 +77,9 @@ class BlogManagerService
             'slug' => Str::slug($request->title ?? $blog->title),
             'content' => $request->long_description ?? $blog->content,
             'category' => $request->category ?? $blog->category,
-            'is_published' => $request->is_published ?? $blog->is_published
+            'is_published' => $request->is_published ?? $blog->is_published,
         ]);
-        
+
         $this->createLog(auth()->user(), "Updated blog post with ID: $id");
 
         return $this->successResponse(null, 'Blog post details updated successfully.');
@@ -87,7 +88,7 @@ class BlogManagerService
     public function deleteBlog(int $id): JsonResponse
     {
         $blog = Blog::query()->where('id', $id)->first();
-        if (!$blog) {
+        if (! $blog) {
             return $this->errorResponse(null, 'Blog post not found.', 404);
         }
 

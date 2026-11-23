@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use App\Services\BlogManagerService;
 use App\Http\Requests\NewBlogRequest;
-use Illuminate\Container\Attributes\CurrentUser;
-use App\Services\CareerManagerService;
 use App\Http\Requests\NewCareerRequest;
 use App\Models\User;
+use App\Services\BlogManagerService;
+use App\Services\CareerManagerService;
+use Illuminate\Container\Attributes\CurrentUser;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class CareerBlogManagerController extends Controller
 {
@@ -43,9 +43,8 @@ class CareerBlogManagerController extends Controller
         return $this->careerManagerService->deleteApplication($id);
     }
 
-    //Blog section
+    // Blog section
 
-    
     public function allBlogs(Request $request): JsonResponse
     {
         return $this->blogManagerService->allBlogs($request);

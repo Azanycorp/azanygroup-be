@@ -6,22 +6,22 @@ use App\Enum\InboxCategory;
 use App\Enum\InboxStatus;
 use App\Http\Requests\AddNoteRequest;
 use App\Http\Requests\UpdateInboxRequest;
+use App\Http\Resources\ActivityLogResource;
+use App\Http\Resources\BlogResource;
 use App\Http\Resources\InboxResource;
 use App\Models\ActivityLog;
+use App\Models\Blog;
 use App\Models\Career;
 use App\Models\Inbox;
 use App\Models\NewsLetter;
+use App\Traits\CreateActivityLog;
 use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Traits\CreateActivityLog;
-use App\Models\Blog;
-use App\Http\Resources\ActivityLogResource;
-use App\Http\Resources\BlogResource;
 
 class AdminService
 {
-    use HttpResponses, CreateActivityLog;
+    use CreateActivityLog, HttpResponses;
 
     public function searchInbox(Request $request): JsonResponse
     {
@@ -38,7 +38,7 @@ class AdminService
 
     public function dashboard(): JsonResponse
     {
-        $messages = Inbox::query()->where('status', InboxStatus::NEW ->value)->count();
+        $messages = Inbox::query()->where('status', InboxStatus::NEW->value)->count();
         $publishedBlogs = Blog::query()->where('is_published', true)->count();
         $unpublishedBlogs = Blog::query()->where('is_published', false)->count();
 
@@ -106,7 +106,7 @@ class AdminService
     public function getInboxMessage(int $id): JsonResponse
     {
         $inbox = Inbox::with('notes')->where('id', $id)->first();
-        if (!$inbox) {
+        if (! $inbox) {
             return $this->errorResponse(null, 'Inbox message not found.', 404);
         }
 
@@ -116,11 +116,12 @@ class AdminService
     public function updateInboxMessage(UpdateInboxRequest $request, int $id): JsonResponse
     {
         $inbox = Inbox::query()->where('id', $id)->first();
-        if (!$inbox) {
+        if (! $inbox) {
             return $this->errorResponse(null, 'Inbox message not found.', 404);
         }
         $inbox->update(['status' => $request->status]);
         $this->createLog(auth()->user(), "Updated inbox message with ID: $id to status 'read'");
+
         return $this->successResponse(null, 'Inbox message updated successfully.');
     }
 
@@ -128,12 +129,13 @@ class AdminService
     {
         $inbox = Inbox::query()->where('id', $id)->first();
 
-        if (!$inbox) {
+        if (! $inbox) {
             return $this->errorResponse(null, 'Inbox message not found.', 404);
         }
 
         $inbox->notes()->create(['note' => $request->note]);
         $this->createLog(auth()->user(), "Added note to inbox message with ID: $id");
+
         return $this->successResponse(null, 'Note added successfully.');
     }
 }

@@ -4,18 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ContactUsRequest;
 use App\Http\Requests\InquiryRequest;
+use App\Http\Requests\JobApplicationRequest;
 use App\Http\Requests\NewsletterRequest;
 use App\Http\Requests\OpenApplicationRequest;
 use App\Services\HomeService;
 use Illuminate\Http\JsonResponse;
-use App\Http\Requests\JobApplicationRequest;
 
 class HomeController extends Controller
 {
     public function __construct(
         private readonly HomeService $homeService
-    ) {
-    }
+    ) {}
 
     public function migrate(): JsonResponse
     {

@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Model;
 
-#[fillable([
+#[Fillable([
     'title',
     'slug',
     'team',
@@ -16,9 +16,6 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
     'location',
     'closing_date',
     'is_active',
-    'is_published'
+    'is_published',
 ])]
-class Career extends Model
-{
-
-}
+class Career extends Model {}
