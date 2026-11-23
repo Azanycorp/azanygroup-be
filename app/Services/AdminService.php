@@ -119,7 +119,7 @@ class AdminService
         if (!$inbox) {
             return $this->errorResponse(null, 'Inbox message not found.', 404);
         }
-        $inbox->update(['status' => 'read']);
+        $inbox->update(['status' => $request->status]);
         $this->createLog(auth()->user(), "Updated inbox message with ID: $id to status 'read'");
         return $this->successResponse(null, 'Inbox message updated successfully.');
     }
