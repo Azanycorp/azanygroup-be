@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->string('short_description')->nullable();
             $table->string('author');
+            $table->string('category');
             $table->longText('content');
             $table->boolean('is_published')->default(false);
             $table->timestamps();

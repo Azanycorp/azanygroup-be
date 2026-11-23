@@ -65,6 +65,7 @@ class HomeService
             return $this->errorResponse(null, 'Job not found.', 404);
         }
 
+         /** @var Career $job */
         if(!$job->is_active && $job->closing_date < date('Y-m-d')){
             return $this->errorResponse(null, 'This Vacancy is no longer available.', 400);
         }

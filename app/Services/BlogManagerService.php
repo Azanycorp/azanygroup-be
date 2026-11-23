@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use App\Http\Requests\NewBlogRequest;
 use App\Http\Resources\BlogResource;
 use App\Traits\CreateActivityLog;
+use App\Models\User;
 
 class BlogManagerService
 {
@@ -18,10 +19,6 @@ class BlogManagerService
 
     public function allBlogs(Request $request): JsonResponse
     {
-        $counts = Blog::query()->selectRaw('category, COUNT(*) as total')
-            ->groupBy('category')
-            ->pluck('total', 'category');
-
         $query = Blog::query()
             ->when($request->filled('search'), function ($q) use ($request) {
                 $search = "%{$request->search}%";
@@ -44,7 +41,7 @@ class BlogManagerService
 
     public function getBlogDetails(int $id): JsonResponse
     {
-        $blog = Blog::where('id', $id)->first();
+        $blog = Blog::query()->where('id', $id)->first();
         if (!$blog) {
             return $this->errorResponse(null, 'Blog post not found.', 404);
         }
@@ -52,17 +49,18 @@ class BlogManagerService
         return $this->successResponse(new BlogResource($blog), 'Blog details retrieved successfully.');
     }
 
-    public function addNewBlog(NewBlogRequest $request, #[CurrentUser()] $user): JsonResponse
+    public function addNewBlog(NewBlogRequest $request, #[CurrentUser()] User $user): JsonResponse
     {
         Blog::query()->create([
             'title' => $request->title,
             'short_description' => $request->short_description,
             'author' => $user->name,
             'slug' => Str::slug($request->title),
-            'content' => $request->content,
+            'content' => $request->long_description,
+            'category' => $request->category,
             'is_published' => $request->is_published,
         ]);
-$this->createLog(auth()->user(), "Added new blog post with ID: " . Blog::latest()->first()->id);
+    $this->createLog($user, "Added new blog post with ID: " . Blog::query()->latest()->first()->id);
         return $this->successResponse(null, 'Blog post added successfully.');
     }
 
@@ -76,11 +74,12 @@ $this->createLog(auth()->user(), "Added new blog post with ID: " . Blog::latest(
             'title' => $request->title ?? $blog->title,
             'short_description' => $request->short_description ?? $blog->short_description,
             'slug' => Str::slug($request->title ?? $blog->title),
-            'content' => $request->content ?? $blog->content,
+            'content' => $request->long_description ?? $blog->content,
+            'category' => $request->category ?? $blog->category,
             'is_published' => $request->is_published ?? $blog->is_published
         ]);
         
-$this->createLog(auth()->user(), "Updated blog post with ID: $id");
+        $this->createLog(auth()->user(), "Updated blog post with ID: $id");
 
         return $this->successResponse(null, 'Blog post details updated successfully.');
     }

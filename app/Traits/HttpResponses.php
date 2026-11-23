@@ -4,6 +4,8 @@ namespace App\Traits;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use InvalidArgumentException;
 
 trait HttpResponses
 {
@@ -39,19 +41,36 @@ trait HttpResponses
     /**
      * Return a custom paginated response.
      *
-     * @param  LengthAwarePaginator<int, mixed>  $resource
+     * @param  LengthAwarePaginator<int, mixed>|AnonymousResourceCollection  $resource
      */
-    protected function paginatedResponse(LengthAwarePaginator $resource, string $message, int $statusCode = 200): JsonResponse
-    {
+    protected function paginatedResponse(
+        LengthAwarePaginator|AnonymousResourceCollection $resource, // <-- MUST include both type hints
+        string $message,
+        int $statusCode = 200
+    ): JsonResponse {
+        // Determine the actual paginator
+        $paginator = $resource instanceof AnonymousResourceCollection
+            ? $resource->resource
+            : $resource;
+
+        if (!$paginator instanceof LengthAwarePaginator) {
+           throw new InvalidArgumentException('Expected a LengthAwarePaginator or AnonymousResourceCollection.');
+        }
+
+        // Extract raw array items or serialize collection
+        $items = $resource instanceof AnonymousResourceCollection
+            ? $resource->toArray(request())
+            : $paginator->items();
+
         return response()->json([
             'success' => true,
             'message' => $message,
-            'data' => $resource->items(),
+            'data' => $items,
             'meta' => [
-                'current_page' => $resource->currentPage(),
-                'total' => $resource->total(),
-                'per_page' => $resource->perPage(),
-                'last_page' => $resource->lastPage(),
+                'current_page' => $paginator->currentPage(),
+                'total' => $paginator->total(),
+                'per_page' => $paginator->perPage(),
+                'last_page' => $paginator->lastPage(),
             ],
         ], $statusCode);
     }

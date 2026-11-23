@@ -45,7 +45,7 @@ Route::prefix('admin')->middleware('auth:sanctum')->group(function (): void {
             Route::delete('/delete/{id}', 'deleteApplication');
         });
         Route::prefix('blogs')->group(function () {
-            Route::get('', 'dashboard');
+            Route::get('', 'allBlogs');
             Route::post('add', 'addNewBlog');
             Route::get('/details/{id}', 'getBlogDetails');
             Route::put('/update/{id}', 'updateBlog');

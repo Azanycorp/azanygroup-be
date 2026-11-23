@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['title', 'short_description','slug', 'author', 'content', 'is_published'])]
+#[Fillable(['title', 'short_description','slug','category', 'author', 'content', 'is_published'])]
 
 class Blog extends Model
 {

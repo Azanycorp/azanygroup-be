@@ -9,6 +9,7 @@ use App\Http\Requests\NewBlogRequest;
 use Illuminate\Container\Attributes\CurrentUser;
 use App\Services\CareerManagerService;
 use App\Http\Requests\NewCareerRequest;
+use App\Models\User;
 
 class CareerBlogManagerController extends Controller
 {
@@ -32,9 +33,9 @@ class CareerBlogManagerController extends Controller
         return $this->careerManagerService->addNewApplication($request);
     }
 
-    public function updateApplication(NewCareerRequest $request, #[CurrentUser()] $user): JsonResponse
+    public function updateApplication(NewCareerRequest $request, int $id): JsonResponse
     {
-        return $this->careerManagerService->updateApplication($request, $user);
+        return $this->careerManagerService->updateApplication($request, $id);
     }
 
     public function deleteApplication(int $id): JsonResponse
@@ -60,7 +61,7 @@ class CareerBlogManagerController extends Controller
         return $this->blogManagerService->updateBlog($request, $id);
     }
 
-    public function addNewBlog(NewBlogRequest $request, #[CurrentUser()] $user): JsonResponse
+    public function addNewBlog(NewBlogRequest $request, #[CurrentUser()] User $user): JsonResponse
     {
         return $this->blogManagerService->addNewBlog($request, $user);
     }

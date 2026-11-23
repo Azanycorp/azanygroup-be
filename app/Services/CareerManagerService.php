@@ -17,10 +17,6 @@ class CareerManagerService
 
     public function allApplications(Request $request): JsonResponse
     {
-        $counts = Career::query()->selectRaw('category, COUNT(*) as total')
-            ->groupBy('category')
-            ->pluck('total', 'category');
-
         $query = Career::query()
             ->when($request->filled('search'), function ($q) use ($request) {
                 $search = "%{$request->search}%";
@@ -43,7 +39,7 @@ class CareerManagerService
 
     public function getApplicationDetails(int $id): JsonResponse
     {
-        $career = Career::where('id', $id)->first();
+        $career = Career::query()->where('id', $id)->first();
         if (!$career) {
             return $this->errorResponse(null, 'Career application not found.', 404);
         }
@@ -67,7 +63,7 @@ class CareerManagerService
             'is_published' => $request->is_published
         ]);
         
-        $this->createLog(auth()->user(), "Added new career application with ID: " . Career::latest()->first()->id);
+        $this->createLog(auth()->user(), "Added new career application with ID: " . Career::query()->latest()->first()->id);
         return $this->successResponse(null, 'Career application added successfully.');
     }
 
