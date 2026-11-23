@@ -14,11 +14,19 @@ use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\JobApplicationRequest;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Artisan;
 
 class HomeService
 {
     use HttpResponses;
-
+   public function migrate(): JsonResponse
+    {
+        Artisan::call('migrate', [
+            '--force' => true,
+        ]);
+      return $this->successResponse(Artisan::output(),'Migration completed successfully.');
+    }
+    
     public function addContactMessage(ContactUsRequest $request): JsonResponse
     {
         Inbox::query()->create([

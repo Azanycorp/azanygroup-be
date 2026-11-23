@@ -22,6 +22,19 @@ class AdminService
 {
     use HttpResponses,CreateActivityLog;
 
+      public function searchInbox(Request $request): JsonResponse
+    {
+        $messages = Inbox::query()->when($request->search, function ($q) use ($request) {
+                $search = "%{$request->search}%";
+                $q->where('name', 'like', $search);
+            })
+            ->get();
+
+        $search = InboxResource::collection($messages);
+
+        return $this->successResponse($search, 'Searches found');
+    }
+
     public function dashboard(): JsonResponse
     {
         $messages = Inbox::query()->where('status', InboxStatus::NEW->value)->count();

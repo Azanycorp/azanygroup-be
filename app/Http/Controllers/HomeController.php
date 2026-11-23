@@ -14,7 +14,13 @@ class HomeController extends Controller
 {
     public function __construct(
         private readonly HomeService $homeService
-    ) {}
+    ) {
+    }
+
+    public function migrate(): JsonResponse
+    {
+        return $this->homeService->migrate();
+    }
 
     public function addContactMessage(ContactUsRequest $request): JsonResponse
     {

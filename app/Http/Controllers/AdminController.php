@@ -14,6 +14,11 @@ class AdminController extends Controller
         private readonly AdminService $adminService
     ) {}
 
+   public function searchInbox(Request $request): JsonResponse
+    {
+        return $this->adminService->searchInbox($request);
+    }
+
     public function dashboard(): JsonResponse
     {
         return $this->adminService->dashboard();

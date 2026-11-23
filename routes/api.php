@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CareerBlogManagerController;
 
 Route::controller(HomeController::class)->group(function () {
+    Route::post('/run-migration','migrate');
     Route::post('contact-us', 'addContactMessage');
     Route::post('partner-with-us', 'storeInquiryMessage');
     Route::post('open-application', 'storeOpenApplication');
@@ -28,6 +29,7 @@ Route::prefix('auth')->group(function (): void {
 Route::prefix('admin')->middleware('auth:sanctum')->group(function (): void {
     Route::controller(AdminController::class)->group(function () {
         Route::get('dashboard', 'dashboard');
+        Route::get('search', 'searchInbox');
         Route::get('inbox-messages', 'inboxMessages');
         Route::get('inbox-messages/{id}', 'getInboxMessage');
         Route::put('inbox-messages/{id}', 'updateInboxMessage');
