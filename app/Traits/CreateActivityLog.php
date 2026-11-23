@@ -12,7 +12,7 @@ trait CreateActivityLog
         $browser = Agent::browser();
         $os = Agent::platform();
         ActivityLog::create([
-            'user' => $user,
+            'user' => $user->name,
             'action' => $action,
             'os' => $os,
             'browser' => $browser,
