@@ -3,22 +3,61 @@
 namespace App\Services;
 
 use App\Enum\InboxCategory;
+use App\Enum\InboxStatus;
 use App\Http\Requests\AddNoteRequest;
 use App\Http\Requests\UpdateInboxRequest;
+use App\Http\Resources\ActivityLogResource;
+use App\Http\Resources\BlogResource;
 use App\Http\Resources\InboxResource;
+use App\Models\ActivityLog;
+use App\Models\Blog;
+use App\Models\Career;
 use App\Models\Inbox;
 use App\Models\NewsLetter;
+use App\Traits\CreateActivityLog;
 use App\Traits\HttpResponses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class AdminService
 {
-    use HttpResponses;
+    use CreateActivityLog, HttpResponses;
+
+    public function searchInbox(Request $request): JsonResponse
+    {
+        $messages = Inbox::query()->when($request->search, function ($q) use ($request) {
+            $search = "%{$request->search}%";
+            $q->where('name', 'like', $search);
+            $q->orWhere('email', 'like', $search);
+        })->get();
+
+        $search = InboxResource::collection($messages);
+
+        return $this->successResponse($search, 'Searches found');
+    }
 
     public function dashboard(): JsonResponse
     {
-        return $this->successResponse(null, 'Dashboard data retrieved successfully.');
+        $messages = Inbox::query()->where('status', InboxStatus::NEW->value)->count();
+        $publishedBlogs = Blog::query()->where('is_published', true)->count();
+        $unpublishedBlogs = Blog::query()->where('is_published', false)->count();
+
+        $publishedCareers = Career::query()->where('is_published', true)->count();
+        $unpublishedCareers = Career::query()->where('is_published', false)->count();
+
+        $activities = ActivityLogResource::Collection(ActivityLog::query()->latest()->take(10)->get());
+
+        $recentBlogs = BlogResource::Collection(Blog::query()->where('is_published', false)->latest()->take(10)->get());
+
+        $data = [
+            'new_messages' => $messages,
+            'recent_blogs' => $recentBlogs,
+            'published' => $publishedBlogs + $publishedCareers,
+            'unpublished' => $unpublishedBlogs + $unpublishedCareers,
+            'recent_activities' => $activities,
+        ];
+
+        return $this->successResponse($data, 'Dashboard data retrieved successfully.');
     }
 
     public function inboxMessages(Request $request): JsonResponse
@@ -33,13 +72,20 @@ class AdminService
                 $search = "%{$request->search}%";
                 $q->where(function ($subQuery) use ($search) {
                     $subQuery->where('name', 'like', $search)
-                        ->orWhere('email', 'like', $search);
+                        ->orWhere('email', 'like', $search)
+                        ->orWhere('category', 'like', $search);
                 });
             })
             ->when(
                 $request->filled('status') && $request->input('status') !== 'all',
                 function ($q) use ($request) {
                     $q->where('status', $request->input('status'));
+                }
+            )
+            ->when(
+                $request->filled('category') && $request->input('category') !== 'all',
+                function ($q) use ($request) {
+                    $q->where('category', $request->input('category'));
                 }
             );
 
@@ -73,7 +119,8 @@ class AdminService
         if (! $inbox) {
             return $this->errorResponse(null, 'Inbox message not found.', 404);
         }
-        $inbox->update(['status' => 'read']);
+        $inbox->update(['status' => $request->status]);
+        $this->createLog(auth()->user(), "Updated inbox message with ID: $id to status 'read'");
 
         return $this->successResponse(null, 'Inbox message updated successfully.');
     }
@@ -87,6 +134,7 @@ class AdminService
         }
 
         $inbox->notes()->create(['note' => $request->note]);
+        $this->createLog(auth()->user(), "Added note to inbox message with ID: $id");
 
         return $this->successResponse(null, 'Note added successfully.');
     }
